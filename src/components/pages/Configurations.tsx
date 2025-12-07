@@ -1,7 +1,7 @@
 import { Box, Heading, MaskedInput, Page, PageContent, Text, Button, RadioButtonGroup, type MaskedInputExtendedProps } from 'grommet';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Close } from 'grommet-icons';
+import { Close, Mail } from 'grommet-icons';
 import { useColorMode, type ColorTheme } from '../../contexts/ColorModeContext';
 import { usePomodoroContext } from '../../contexts/PomodoroContext';
 import { useCalculatedColors } from '../../hooks/useCalculatedColors';
@@ -11,6 +11,7 @@ import {
 	DEFAULT_SHORT_BREAK_TIME,
 	DEFAULT_LONG_BREAK_TIME
 } from '../../utils/pomodoro';
+import SuggestionModal from '../SuggestionModal';
 import './Configurations.css';
 
 const DigitsRegex = /[0-9]$/
@@ -46,6 +47,7 @@ function Configurations() {
 	const [pomodoro, setPomodoro] = useState(() => getItemFromLocalStorage('pomodoro', DEFAULT_POMODORO_TIME));
 	const [shortBreak, setShortBreak] = useState(() => getItemFromLocalStorage('shortBreak', DEFAULT_SHORT_BREAK_TIME));
 	const [longBreak, setLongBreak] = useState(() => getItemFromLocalStorage('longBreak', DEFAULT_LONG_BREAK_TIME));
+	const [showSuggestionModal, setShowSuggestionModal] = useState(false);
 
 	const { colorTheme, setColorTheme } = useColorMode();
 	const { setShouldPause, setShouldResume } = usePomodoroContext();
@@ -198,7 +200,8 @@ function Configurations() {
 								onBlur={handleLongBreakBlur}
 							/>
 						</Box>
-					</Box>					{/* Info note */}
+					</Box>
+
 					<Box
 						margin={{ top: 'large' }}
 						pad="medium"
@@ -211,6 +214,15 @@ function Configurations() {
 							💾 Los cambios se guardan automáticamente y se aplicarán en el próximo ciclo
 						</Text>
 					</Box>
+
+					<Box margin={{ top: 'medium' }} align="center">
+						<Button
+							icon={<Mail size="small" />}
+							label="Enviar sugerencia"
+							onClick={() => setShowSuggestionModal(true)}
+							className="suggestion-button"
+						/>
+					</Box>
 				</PageContent>
 			</Page>
 
@@ -222,6 +234,18 @@ function Configurations() {
 					className="close-button"
 				/>
 			</Box>
+
+			{showSuggestionModal && (
+				<SuggestionModal
+					onClose={() => setShowSuggestionModal(false)}
+					colors={{
+						text: currentColors.text,
+						background: currentColors.background,
+						border: currentColors.border,
+						secondaryText: currentColors.secondaryText,
+					}}
+				/>
+			)}
 		</>
 	)
 }

@@ -210,11 +210,9 @@ const Pomodoro: React.FC = () => {
         <span className="status-indicator">
           {isRunning ? '▶ En progreso' : '⏸ Pausado'}
         </span>
-        {mode === 'pomodoro' && (
-          <span className="pomodoro-counter">
-            Pomodoros completados: {completedPomodoros}
-          </span>
-        )}
+        <span className="pomodoro-counter">
+          Pomodoros completados: {completedPomodoros}
+        </span>
       </Box>
     </Box>
   );
