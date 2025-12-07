@@ -1,24 +1,26 @@
 import { Grommet } from 'grommet';
 import './App.css'
-import Navbar from './components/Navbar'
 import Home from './components/pages/Home';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Configurations from './components/pages/Configurations';
-import CatIllustration from './components/CatIllustration';
+import { ColorModeProvider } from './contexts/ColorModeContext';
+import { PomodoroProvider } from './contexts/PomodoroContext';
 
 function App() {
   return (
     <>
-      <Grommet full>
-        <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/configurations" element={<Configurations />} />
-          </Routes>
-        <CatIllustration />
-        </BrowserRouter>
-      </Grommet>
+      <BrowserRouter>
+        <ColorModeProvider>
+          <PomodoroProvider>
+            <Grommet full>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/configurations" element={<Configurations />} />
+              </Routes>
+            </Grommet>
+          </PomodoroProvider>
+        </ColorModeProvider>
+      </BrowserRouter>
     </>
   )
 }

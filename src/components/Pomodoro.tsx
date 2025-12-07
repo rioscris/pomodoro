@@ -1,41 +1,22 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button } from 'grommet';
 import { useTimer } from 'react-timer-hook';
-import { Play, Pause } from 'grommet-icons';
-
-const Colors = {
-  Text: '#fae5c5',
-  Background: '#f08b4f',
-};
-
-
-const getTimeFromLocalStorage = (key: string, fallback: string) => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(key) || fallback;
-  }
-  return fallback;
-};
-
-const parseTime = (str: string): { minutes: number, seconds: number } => {
-  const [mm, ss] = str.split(':').map(Number);
-  return { minutes: mm || 0, seconds: ss || 0 };
-};
-
-const getExpiryDate = (minutes: number, seconds: number): Date => {
-  const date = new Date();
-  date.setMinutes(date.getMinutes() + minutes);
-  date.setSeconds(date.getSeconds() + seconds);
-  return date;
-};
-
-const timeToString = (number: number): string => {
-  return number < 10 ? `0${number}` : `${number}`;
-}
-
+import { usePomodoroContext } from '../contexts/PomodoroContext';
+import { useCalculatedColors } from '../hooks/useCalculatedColors';
+import { getItemFromLocalStorage } from '../utils/localStorage';
+import {
+  POMODOROS_BEFORE_LONG_BREAK,
+  DEFAULT_POMODORO_TIME,
+  DEFAULT_SHORT_BREAK_TIME,
+  DEFAULT_LONG_BREAK_TIME,
+  parseTime,
+  timeToString,
+  getExpiryDate
+} from '../utils/pomodoro';
+import './Pomodoro.css';
 
 type Mode = 'pomodoro' | 'shortBreak' | 'longBreak';
-const MODES = ['pomodoro', 'shortBreak', 'longBreak'] as Mode[];
-const POMODOROS_BEFORE_LONG_BREAK = 3;
+const MODES: Mode[] = ['pomodoro', 'shortBreak', 'longBreak'];
 
 const modeLabels: Record<Mode, string> = {
   pomodoro: 'Pomodoro',
@@ -44,28 +25,54 @@ const modeLabels: Record<Mode, string> = {
 };
 
 const Pomodoro: React.FC = () => {
-  const pomodoroTime = getTimeFromLocalStorage('pomodoro', '25:00');
-  const shortBreakTime = getTimeFromLocalStorage('shortBreak', '05:00');
-  const longBreakTime = getTimeFromLocalStorage('longBreak', '15:00');
+  const pomodoroTime = getItemFromLocalStorage('pomodoro', DEFAULT_POMODORO_TIME);
+  const shortBreakTime = getItemFromLocalStorage('shortBreak', DEFAULT_SHORT_BREAK_TIME);
+  const longBreakTime = getItemFromLocalStorage('longBreak', DEFAULT_LONG_BREAK_TIME);
 
-  const [mode, setMode] = useState<Mode>('pomodoro');
-  const [completedPomodoros, setCompletedPomodoros] = useState(0);
+  const {
+    shouldPause,
+    setShouldPause,
+    shouldResume,
+    setShouldResume,
+    timerState,
+    setTimerState
+  } = usePomodoroContext();
 
+  const colors = useCalculatedColors();
 
-  const getCurrentModeTime = useCallback(() => {
+  const mode = timerState.mode;
+  const completedPomodoros = timerState.completedPomodoros;
+
+  const setMode = (newMode: Mode) => {
+    setTimerState(prev => ({
+      ...prev,
+      mode: newMode
+    }));
+  };
+
+  const setCompletedPomodoros = (value: number | ((prev: number) => number)) => {
+    setTimerState(prev => ({
+      ...prev,
+      completedPomodoros: typeof value === 'function' ? value(prev.completedPomodoros) : value
+    }));
+  };
+
+  const getCurrentModeTime = () => {
     if (mode === 'pomodoro') return parseTime(pomodoroTime);
     if (mode === 'shortBreak') return parseTime(shortBreakTime);
     return parseTime(longBreakTime);
-  }, [mode, pomodoroTime, shortBreakTime, longBreakTime]);
+  };
 
   const { minutes, seconds, pause, isRunning, resume, restart } = useTimer({
-    expiryTimestamp: (() => { const { minutes, seconds } = getCurrentModeTime(); return getExpiryDate(minutes, seconds); })(),
+    expiryTimestamp: (() => {
+      const { minutes, seconds } = getCurrentModeTime();
+      return getExpiryDate(minutes, seconds);
+    })(),
     autoStart: false,
     onExpire: () => {
       if (mode === 'pomodoro') {
         if (completedPomodoros === POMODOROS_BEFORE_LONG_BREAK) {
           setMode('longBreak');
-          setCompletedPomodoros(0);
         } else {
           setMode('shortBreak');
           setCompletedPomodoros((n) => n + 1);
@@ -77,15 +84,59 @@ const Pomodoro: React.FC = () => {
   });
 
   useEffect(() => {
-    const { minutes, seconds } = getCurrentModeTime();
-    restart(getExpiryDate(minutes, seconds), false);
+    const { minutes: mins, seconds: secs } = getCurrentModeTime();
+    const totalSecs = mins * 60 + secs;
+    const savedRemainingSeconds = timerState.remainingSeconds;
+
+    setTimerState(prev => ({
+      ...prev,
+      totalSeconds: totalSecs,
+    }));
+
+    if (savedRemainingSeconds > 0 && savedRemainingSeconds <= totalSecs) {
+      const expiryDate = new Date();
+      expiryDate.setSeconds(expiryDate.getSeconds() + savedRemainingSeconds);
+      restart(expiryDate, false);
+    } else {
+      restart(getExpiryDate(mins, secs), false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* TODO: Improve useEffects execution order and remove useRef */
+  const isFirstUpdate = React.useRef(true);
+  useEffect(() => {
+    if (isFirstUpdate.current) {
+      isFirstUpdate.current = false;
+      return;
+    }
+
+    const { minutes: mins, seconds: secs } = getCurrentModeTime();
+    const totalSecs = mins * 60 + secs;
+
+    setTimerState(prev => ({
+      ...prev,
+      mode,
+      remainingSeconds: totalSecs,
+      totalSeconds: totalSecs,
+      isRunning: false
+    }));
+
+    restart(getExpiryDate(mins, secs), false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, pomodoroTime, shortBreakTime, longBreakTime]);
+
+  useEffect(() => {
+    const remainingSeconds = minutes * 60 + seconds;
+    setTimerState(prev => ({
+      ...prev,
+      remainingSeconds,
+      isRunning
+    }));
+  }, [minutes, seconds, isRunning, setTimerState]);
 
   const handleModeChange = (newMode: Mode) => {
     setMode(newMode);
-    if (newMode === 'pomodoro') {
-      setCompletedPomodoros((prev) => (mode === 'longBreak' ? 0 : prev));
-    }
   };
 
   const toggleTimer = () => {
@@ -96,43 +147,76 @@ const Pomodoro: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (shouldPause && isRunning) {
+      pause();
+      setShouldPause(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldPause, isRunning]);
+
+  useEffect(() => {
+    if (shouldResume && !isRunning) {
+      resume();
+      setShouldResume(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldResume, isRunning]);
+
   return (
-    <div>
-      <Box align="center" justify="center" gap="medium">
-        <Box direction="row" gap="small" margin={{ bottom: 'small' }}>
-          {(MODES).map((m) => (
-            <Button
-              key={m}
-              label={modeLabels[m]}
-              onClick={() => handleModeChange(m)}
-              primary={mode === m}
-              color={mode === m ? Colors.Background : undefined}
-              style={{ fontWeight: mode === m ? 'bold' : 'normal' }}
-            />
-          ))}
-        </Box>
-        <Button
-          primary
-          label={`${timeToString(minutes)}:${timeToString(seconds)}`}
-          onClick={toggleTimer}
-          color={Colors.Background}
-          style={{
-            fontSize: '3em',
-            minWidth: '200px',
-            minHeight: '200px',
-            borderRadius: '50%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: Colors.Text,
-          }}
-        />
-        <Box margin={{ top: 'small' }}>
-          <span style={{ color: Colors.Text }}>
-            {mode === 'pomodoro' && `Pomodoros completados: ${completedPomodoros}`}
-          </span>
-        </Box>
+    <Box
+      align="center"
+      justify="center"
+      gap="large"
+      pad="large"
+      className="pomodoro-container"
+      style={{
+        // @ts-expect-error - CSS variables
+        '--text-color': colors.text,
+        '--bg-color': colors.background,
+        '--border-color': colors.border,
+        '--secondary-text-color': colors.secondaryText,
+      }}
+    >
+      {/* Mode buttons */}
+      <Box
+        direction="row"
+        gap="medium"
+        wrap
+        justify="center"
+        className="mode-buttons-container"
+      >
+        {(MODES).map((m) => (
+          <Button
+            key={m}
+            label={modeLabels[m]}
+            onClick={() => handleModeChange(m)}
+            primary={mode === m}
+            className={`mode-button ${mode === m ? 'mode-button-active' : 'mode-button-inactive'}`}
+          />
+        ))}
       </Box>
-    </div>
+
+      {/* Large timer display */}
+      <Button
+        plain
+        label={`${timeToString(minutes)}:${timeToString(seconds)}`}
+        onClick={toggleTimer}
+        className="timer-display"
+      />
+
+      {/* Status indicator */}
+      <Box align="center" gap="small" className="status-container">
+        <span className="status-indicator">
+          {isRunning ? '▶ En progreso' : '⏸ Pausado'}
+        </span>
+        {mode === 'pomodoro' && (
+          <span className="pomodoro-counter">
+            Pomodoros completados: {completedPomodoros}
+          </span>
+        )}
+      </Box>
+    </Box>
   );
 };
 

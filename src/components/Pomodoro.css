@@ -1,0 +1,108 @@
+/* Pomodoro component styles */
+.pomodoro-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: var(--bg-color);
+  transition: background-color 0.8s ease, color 0.8s ease;
+}
+
+.mode-buttons-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  padding: 0 1rem;
+}
+
+.mode-button {
+  background: transparent !important;
+  color: var(--text-color) !important;
+  border: 2px solid var(--border-color) !important;
+  border-radius: 30px !important;
+  padding: 12px 32px !important;
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem) !important;
+  min-width: 140px;
+  transition: all 0.8s ease;
+  cursor: pointer;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.mode-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.mode-button:hover {
+  box-shadow: none !important;
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+  opacity: 0.8;
+}
+
+.mode-button-active {
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+  font-weight: 600;
+  border: 2px solid var(--text-color) !important;
+}
+
+.mode-button-inactive {
+  font-weight: 500;
+}
+
+.timer-display {
+  color: var(--text-color) !important;
+  font-size: clamp(4rem, 15vw, 10rem) !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.05em;
+  background: transparent;
+  border: none;
+  padding: 2rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, color 0.8s ease;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.timer-display:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.timer-display:hover {
+  transform: scale(1.02);
+}
+
+.timer-display:active {
+  transform: scale(0.98);
+}
+
+.status-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-indicator {
+  color: var(--secondary-text-color);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-weight: 500;
+  transition: color 0.8s ease;
+}
+
+.pomodoro-counter {
+  color: var(--secondary-text-color);
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  transition: color 0.8s ease;
+}

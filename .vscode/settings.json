@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  // Custom rules location for AI assistants
+  "github.copilot.advanced": {
+    "customPrompt": "Follow the coding rules defined in .vscode/rules.md"
+  }
+}
