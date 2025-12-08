@@ -21,7 +21,7 @@ const TimeInput = (props: MaskedInputExtendedProps) => (
 		mask={[
 			{
 				length: 2,
-				placeholder: 'hh',
+				placeholder: 'mm',
 				regexp: DigitsRegex
 			},
 			{
@@ -29,7 +29,7 @@ const TimeInput = (props: MaskedInputExtendedProps) => (
 			},
 			{
 				length: 2,
-				placeholder: 'mm',
+				placeholder: 'ss',
 				regexp: DigitsRegex
 			}
 		]}
