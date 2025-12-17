@@ -17,7 +17,10 @@ function SuggestionModal({ onClose, colors }: SuggestionModalProps) {
     <Layer
       onEsc={onClose}
       onClickOutside={onClose}
+      position='center'
+      modal
       className="suggestion-modal-layer"
+      responsive={false}
       style={{
         '--text-color': colors.text,
         '--bg-color': colors.background,
