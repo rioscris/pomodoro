@@ -215,7 +215,7 @@ function Configurations() {
 						</Text>
 					</Box>
 
-					<Box margin={{ top: 'medium' }} align="center">
+					<Box pad='large' align="center">
 						<Button
 							icon={<Mail size="small" />}
 							label="Enviar sugerencia"
@@ -223,17 +223,17 @@ function Configurations() {
 							className="suggestion-button"
 						/>
 					</Box>
+
+					<Button
+						icon={<Close size="large" color={currentColors.text} />}
+						onClick={() => navigate('/')}
+						plain
+						className="close-button"
+					/>
 				</PageContent>
+
 			</Page>
 
-			<Box className="close-button-container">
-				<Button
-					icon={<Close size="medium" color={currentColors.text} />}
-					onClick={() => navigate('/')}
-					plain
-					className="close-button"
-				/>
-			</Box>
 
 			{showSuggestionModal && (
 				<SuggestionModal

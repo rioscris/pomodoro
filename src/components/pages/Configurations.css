@@ -15,25 +15,26 @@
   padding: 4rem 0;
 }
 
-.close-button-container {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+.close-button {
+  background: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 20px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-.close-button {
-  background: transparent !important;
-  border: 2px solid var(--border-color) !important;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.8s ease;
+.close-button:hover {
+  opacity: 0.9;
+  box-shadow: none !important;
+}
+
+.close-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .configurations-heading {
