@@ -1,6 +1,7 @@
 /* Pomodoro component styles */
 .pomodoro-page {
   height: 100vh;
+  height: 100dvh;
   background: var(--bg-color);
   transition: background-color 0.8s ease;
 }
