@@ -1,9 +1,9 @@
 /* Configuration page styles */
 .configurations-page {
-  height: 100vh;
-  height: 100svh;
+  height: 100%;
   background: var(--bg-color);
   transition: background-color 0.8s ease;
+  overflow-y: auto;
 }
 
 .configurations-content {
@@ -13,6 +13,7 @@
   align-items: center;
   justify-content: center;
   padding: 4rem 0;
+  min-height: 100%;
 }
 
 .close-button {
