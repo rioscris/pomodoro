@@ -1,13 +1,12 @@
 /* Pomodoro component styles */
 .pomodoro-page {
-  height: 100%;
+  height: 100svh;
   background: var(--bg-color);
   transition: background-color 0.8s ease;
   overflow: hidden;
 }
 
 .pomodoro-container {
-  height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
