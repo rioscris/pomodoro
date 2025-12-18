@@ -1,6 +1,6 @@
-import { Box, Button, Page } from 'grommet';
+import { Box, Button, Page, ResponsiveContext, Text as GrommetText } from 'grommet';
 import { SettingsOption } from 'grommet-icons';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useTimer } from 'react-timer-hook';
 import { usePomodoroContext } from '../contexts/PomodoroContext';
 import { useCalculatedColors } from '../hooks/useCalculatedColors';
@@ -43,6 +43,7 @@ const Pomodoro: React.FC = () => {
   } = usePomodoroContext();
 
   const colors = useCalculatedColors();
+  const size = useContext(ResponsiveContext);
 
   const mode = timerState.mode;
   const completedPomodoros = timerState.completedPomodoros;
@@ -180,18 +181,22 @@ const Pomodoro: React.FC = () => {
       }}
     >
       <Box
+        fill
         align="center"
         justify="center"
-        gap="large"
-        pad="large"
+        pad="medium"
+        gap="medium"
+        overflow={{ vertical: 'auto', horizontal: 'hidden' }}
         className="pomodoro-container"
       >
         {/* Mode buttons */}
         <Box
           direction="row"
-          gap="medium"
+          gap="small"
           wrap
           justify="center"
+          align="center"
+          width={{ max: 'large' }}
           className="mode-buttons-container"
         >
           {(MODES).map((m) => (
@@ -200,31 +205,35 @@ const Pomodoro: React.FC = () => {
               label={modeLabels[m]}
               onClick={() => handleModeChange(m)}
               primary={mode === m}
+              size={size === 'small' ? 'small' : 'medium'}
+              pad={{ horizontal: 'medium', vertical: 'small' }}
               className={`mode-button ${mode === m ? 'mode-button-active' : 'mode-button-inactive'}`}
             />
           ))}
         </Box>
 
         {/* Large timer display */}
-        <Button
-          plain
-          label={`${timeToString(minutes)}:${timeToString(seconds)}`}
-          onClick={toggleTimer}
-          className="timer-display"
-        />
+        <Box pad={{ vertical: 'medium' }}>
+          <Button
+            plain
+            label={`${timeToString(minutes)}:${timeToString(seconds)}`}
+            onClick={toggleTimer}
+            className="timer-display"
+          />
+        </Box>
 
         {/* Status indicator */}
-        <Box align="center" gap="small" className="status-container">
-          <span className="status-indicator">
+        <Box align="center" gap="xsmall" pad={{ top: 'small' }} className="status-container">
+          <GrommetText className="status-indicator">
             {isRunning ? '▶ En progreso' : '⏸ Pausado'}
-          </span>
-          <span className="pomodoro-counter">
+          </GrommetText>
+          <GrommetText className="pomodoro-counter">
             Pomodoros completados: {completedPomodoros}
-          </span>
+          </GrommetText>
         </Box>
 
         <Button
-          icon={<SettingsOption size="large" color={colors.text} />}
+          icon={<SettingsOption size="medium" color={colors.text} />}
           onClick={() => navigate('/configurations')}
           plain
           className="configurations-button"

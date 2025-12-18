@@ -125,17 +125,28 @@ function Configurations() {
 					'--secondary-text-color': currentColors.secondaryText,
 				}}
 			>
-				<PageContent align='center' className="configurations-content">
+				<Box
+					fill
+					align="center"
+					justify="center"
+					pad={{ horizontal: 'medium', vertical: 'large' }}
+					gap="medium"
+					overflow="auto"
+				>
 					<Heading
 						level="2"
+						margin={{ top: 'none', bottom: 'medium' }}
+						responsive
 						className="configurations-heading"
 					>
 						Configuración
 					</Heading>
 
-					<Box gap="medium" className="section-container">
+					<Box gap="small" align="center" width="large" pad="small">
 						<Heading
 							level="3"
+							margin="none"
+							responsive
 							className="section-heading"
 						>
 							Paleta de colores
@@ -145,7 +156,7 @@ function Configurations() {
 							options={colorThemeOptions.map(opt => ({
 								label: (
 									<Box pad="small">
-										<Text weight="bold" size="medium" className="radio-label-text">
+										<Text weight="bold" className="radio-label-text">
 											{opt.label}
 										</Text>
 										<Text size="small" className="radio-label-description">
@@ -163,37 +174,33 @@ function Configurations() {
 
 					<Box className="divider" />
 
-					<Box className="time-settings-container">
+					<Box width="medium" gap="small" pad="small">
 						<Heading
 							level="3"
+							margin="none"
+							responsive
 							className="section-heading"
 						>
 							Duración de ciclos
 						</Heading>
-						<Box direction="row" gap="medium" align='center' className="time-setting-row">
-							<Text className="time-label">
-								Pomodoro
-							</Text>
+						<Box direction="row" gap="medium" align="center" justify="between">
+							<Text className="time-label">Pomodoro</Text>
 							<TimeInput
 								value={pomodoro}
 								onChange={handlePomodoroChange}
 								onBlur={handlePomodoroBlur}
 							/>
 						</Box>
-						<Box direction="row" gap="medium" align='center' className="time-setting-row">
-							<Text className="time-label">
-								Descanso corto
-							</Text>
+						<Box direction="row" gap="medium" align="center" justify="between">
+							<Text className="time-label">Descanso corto</Text>
 							<TimeInput
 								value={shortBreak}
 								onChange={handleShortBreakChange}
 								onBlur={handleShortBreakBlur}
 							/>
 						</Box>
-						<Box direction="row" gap="medium" align='center' className="time-setting-row">
-							<Text className="time-label">
-								Descanso largo
-							</Text>
+						<Box direction="row" gap="medium" align="center" justify="between">
+							<Text className="time-label">Descanso largo</Text>
 							<TimeInput
 								value={longBreak}
 								onChange={handleLongBreakChange}
@@ -203,19 +210,19 @@ function Configurations() {
 					</Box>
 
 					<Box
-						margin={{ top: 'large' }}
-						pad="medium"
+						margin={{ top: 'small' }}
+						pad="small"
+						border={{ color: 'border', size: 'xsmall' }}
+						round="small"
+						width="medium"
 						className="info-note"
 					>
-						<Text
-							size="small"
-							className="info-note-text"
-						>
+						<Text size="small" textAlign="center" className="info-note-text">
 							💾 Los cambios se guardan automáticamente y se aplicarán en el próximo ciclo
 						</Text>
 					</Box>
 
-					<Box pad='large' align="center">
+					<Box margin={{ top: 'small' }} align="center">
 						<Button
 							icon={<Mail size="small" />}
 							label="Enviar sugerencia"
@@ -224,14 +231,15 @@ function Configurations() {
 						/>
 					</Box>
 
-					<Button
-						icon={<Close size="large" color={currentColors.text} />}
-						onClick={() => navigate('/')}
-						plain
-						className="close-button"
-					/>
-				</PageContent>
-
+					<Box margin={{ top: 'small' }}>
+						<Button
+							icon={<Close size="medium" color={currentColors.text} />}
+							onClick={() => navigate('/')}
+							plain
+							className="close-button"
+						/>
+					</Box>
+				</Box>
 			</Page>
 
 

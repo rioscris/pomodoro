@@ -1,69 +1,40 @@
 /* Configuration page styles */
 .configurations-page {
-  height: 100svh;
+  height: 100%;
   background: var(--bg-color);
   transition: background-color 0.8s ease;
-  overflow-y: auto;
-}
-
-.configurations-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 0;
 }
 
 .close-button {
-  background: var(--bg-color) !important;
-  color: var(--text-color) !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 8px 20px !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease;
-  box-shadow: none !important;
-  outline: none !important;
+  background: transparent !important;
+  cursor: pointer;
+  padding: 12px !important;
 }
 
-.close-button:hover {
-  opacity: 0.9;
-  box-shadow: none !important;
+.close-button svg {
+  width: 32px !important;
+  height: 32px !important;
 }
 
-.close-button:focus {
-  box-shadow: none !important;
-  outline: none !important;
+@media (max-width: 768px) {
+  .close-button svg {
+    width: 36px !important;
+    height: 36px !important;
+  }
 }
 
 .configurations-heading {
   color: var(--text-color);
-  font-weight: 600;
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  margin-bottom: 3rem;
-  margin-top: 0;
   transition: color 0.8s ease;
-}
-
-.section-container {
-  max-width: 600px;
-  padding: 0 1.5rem;
-  margin-bottom: 2rem;
-  align-items: center;
 }
 
 .section-heading {
   color: var(--text-color);
-  font-weight: 600;
-  font-size: clamp(1.2rem, 3vw, 1.5rem);
-  margin-bottom: 0.5rem;
   transition: color 0.8s ease;
 }
 
 .radio-label-text {
   color: var(--text-color);
-  font-weight: bold;
   transition: color 0.8s ease;
 }
 
@@ -75,40 +46,17 @@
 
 .divider {
   width: 80%;
-  max-width: 600px;
+  max-width: 500px;
   height: 1px;
   background: var(--text-color);
   opacity: 0.2;
-  margin: 2rem 0;
   transition: background-color 0.8s ease;
-}
-
-.time-settings-container {
-  max-width: 450px;
-  padding: 0 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: stretch;
-}
-
-.time-setting-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 2rem;
 }
 
 .time-label {
   color: var(--text-color);
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  font-weight: 500;
   transition: color 0.8s ease;
   white-space: nowrap;
-  width: 160px;
-  text-align: left;
-  flex-shrink: 0;
 }
 
 .time-input {
@@ -116,7 +64,6 @@
   background: var(--bg-color) !important;
   border: 2px solid var(--text-color) !important;
   border-radius: 8px !important;
-  padding: 12px 16px !important;
   font-size: 1.1rem !important;
   text-align: center !important;
   transition: all 0.8s ease;
@@ -132,8 +79,6 @@
 
 .info-note {
   margin-top: 2rem;
-  padding: 1rem;
-  max-width: 500px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   transition: border-color 0.8s ease;
@@ -170,15 +115,10 @@ input[type="radio"]:hover+div {
   opacity: 0.7;
 }
 
-.radio-group {
-  gap: 1rem;
-}
-
 .suggestion-button {
   background: transparent !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 20px !important;
-  padding: 8px 16px !important;
   color: var(--text-color) !important;
   font-size: 0.9rem !important;
   cursor: pointer !important;
