@@ -21,4 +21,5 @@ body {
   width: 100%;
   overflow: hidden;
   position: fixed;
+  touch-action: pan-y pinch-zoom;
 }
