@@ -30,6 +30,7 @@
 .close-button:hover {
   opacity: 0.9;
   box-shadow: none !important;
+  transform: scale(1.05);
 }
 
 .close-button:focus {
