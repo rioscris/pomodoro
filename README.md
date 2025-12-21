@@ -25,6 +25,13 @@ Built with **React + TypeScript + Vite**
 UI components by **Grommet**  
 Developed with assistance from **Claude Sonnet (AI)**
 
+## 🎵 Sound Credits
+
+Sound effects sourced from Pixabay:
+- [Dragon Studio](https://pixabay.com/users/dragon-studio-38165424/)
+- [Alexis Gaming Cam](https://pixabay.com/users/alexis_gaming_cam-50011695/)
+- [Irhouen](https://pixabay.com/users/irhouen-40320452/)
+
 ## 🤝 Contributing
 
 Feel free to open issues and PRs to the master branch!
