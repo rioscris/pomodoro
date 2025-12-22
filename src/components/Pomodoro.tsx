@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useTimer } from 'react-timer-hook';
 import { usePomodoroContext } from '../contexts/PomodoroContext';
 import { useCalculatedColors } from '../hooks/useCalculatedColors';
+import { useSounds } from '../hooks/useSounds';
 import { getItemFromLocalStorage } from '../utils/localStorage';
 import {
   DEFAULT_LONG_BREAK_TIME,
@@ -43,6 +44,7 @@ const Pomodoro: React.FC = () => {
   } = usePomodoroContext();
 
   const colors = useCalculatedColors();
+  const { playClickSound, playTransitionSound } = useSounds();
 
   const mode = timerState.mode;
   const completedPomodoros = timerState.completedPomodoros;
@@ -108,11 +110,14 @@ const Pomodoro: React.FC = () => {
       if (mode === 'pomodoro') {
         setCompletedPomodoros((n) => n + 1);
         if ((completedPomodoros + 1) % POMODOROS_BEFORE_LONG_BREAK === 0) {
+          playTransitionSound(true);
           setMode('longBreak');
         } else {
+          playTransitionSound(false);
           setMode('shortBreak');
         }
       } else {
+        playTransitionSound(false);
         setMode('pomodoro');
       }
     },
@@ -175,6 +180,7 @@ const Pomodoro: React.FC = () => {
   };
 
   const toggleTimer = () => {
+    playClickSound();
     if (isRunning) {
       pause();
     } else {
