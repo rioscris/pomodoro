@@ -1,6 +1,6 @@
 import { Box, Button, Page } from 'grommet';
 import { SettingsOption } from 'grommet-icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTimer } from 'react-timer-hook';
 import { usePomodoroContext } from '../contexts/PomodoroContext';
 import { useCalculatedColors } from '../hooks/useCalculatedColors';
@@ -49,6 +49,12 @@ const Pomodoro: React.FC = () => {
   const mode = timerState.mode;
   const completedPomodoros = timerState.completedPomodoros;
 
+  const [inputValue, setInputValue] = useState<string>('');
+
+  useEffect(() => {
+    setInputValue(completedPomodoros.toString());
+  }, [completedPomodoros]);
+
   const setMode = (newMode: Mode) => {
     setTimerState(prev => ({
       ...prev,
@@ -69,6 +75,31 @@ const Pomodoro: React.FC = () => {
     return parseTime(longBreakTime);
   };
 
+  const handlePomodoroCounterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    if (value === '') {
+      setInputValue(value);
+      return;
+    }
+
+    if (!/^\d+$/.test(value)) {
+      return;
+    }
+
+    const num = parseInt(value);
+    if (num >= 0 && num <= 99) {
+      setInputValue(value);
+      setCompletedPomodoros(num);
+    }
+  };
+
+  const handlePomodoroCounterBlur = () => {
+    if (inputValue === '' || !/^\d+$/.test(inputValue)) {
+      setInputValue(completedPomodoros.toString());
+    }
+  };
+
   const { minutes, seconds, pause, isRunning, resume, restart } = useTimer({
     expiryTimestamp: (() => {
       const { minutes, seconds } = getCurrentModeTime();
@@ -77,13 +108,13 @@ const Pomodoro: React.FC = () => {
     autoStart: false,
     onExpire: () => {
       if (mode === 'pomodoro') {
-        if (completedPomodoros === POMODOROS_BEFORE_LONG_BREAK) {
+        setCompletedPomodoros((n) => n + 1);
+        if ((completedPomodoros + 1) % POMODOROS_BEFORE_LONG_BREAK === 0) {
           playTransitionSound(true);
           setMode('longBreak');
         } else {
           playTransitionSound(false);
           setMode('shortBreak');
-          setCompletedPomodoros((n) => n + 1);
         }
       } else {
         playTransitionSound(false);
@@ -224,9 +255,24 @@ const Pomodoro: React.FC = () => {
           <span className="status-indicator">
             {isRunning ? '▶ En progreso' : '⏸ Pausado'}
           </span>
-          <span className="pomodoro-counter">
-            Pomodoros completados: {completedPomodoros}
-          </span>
+          <Box direction="row" align="center" className="pomodoro-counter-container">
+            <span className="pomodoro-counter-label">
+              Pomodoros completados:
+            </span>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handlePomodoroCounterChange}
+              onBlur={handlePomodoroCounterBlur}
+              placeholder="0"
+              className="pomodoro-counter-input-inline"
+              style={{
+                color: colors.text,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+              }}
+            />
+          </Box>
         </Box>
 
         <Button
