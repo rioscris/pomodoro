@@ -113,6 +113,43 @@
   transition: color 0.8s ease;
 }
 
+.pomodoro-counter-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pomodoro-counter-label {
+  color: var(--secondary-text-color);
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  transition: color 0.8s ease;
+}
+
+.pomodoro-counter-input-inline {
+  color: var(--text-color);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  text-align: center;
+  transition: all 0.8s ease;
+  box-shadow: none !important;
+  outline: none !important;
+  width: 2rem;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.pomodoro-counter-input-inline:focus {
+  box-shadow: none !important;
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
 .configurations-button {
   background: var(--bg-color) !important;
   color: var(--text-color) !important;
