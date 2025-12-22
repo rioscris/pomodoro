@@ -102,7 +102,7 @@
 
 .status-indicator {
   color: var(--secondary-text-color);
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 500;
   transition: color 0.8s ease;
 }
@@ -124,7 +124,7 @@
 
 .pomodoro-counter-label {
   color: var(--secondary-text-color);
-  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
   transition: color 0.8s ease;
 }
 
@@ -133,7 +133,7 @@
   background: transparent;
   border: none;
   border-radius: 6px;
-  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
   text-align: center;
   transition: all 0.8s ease;
   box-shadow: none !important;
