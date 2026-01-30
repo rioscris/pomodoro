@@ -1,11 +1,13 @@
 import { Box, Button, Page } from 'grommet';
-import { SettingsOption } from 'grommet-icons';
+import { SettingsOption, Play, Pause, Add, Trash, Close } from 'grommet-icons';
 import React, { useEffect, useState } from 'react';
 import { useTimer } from 'react-timer-hook';
 import { usePomodoroContext } from '../contexts/PomodoroContext';
 import { useCalculatedColors } from '../hooks/useCalculatedColors';
 import { useSounds } from '../hooks/useSounds';
-import { getItemFromLocalStorage } from '../utils/localStorage';
+import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
+import type { YouTubeQueueItem } from '../hooks/useYouTubePlayer';
+import { getItemFromLocalStorage, setItemToLocalStorage } from '../utils/localStorage';
 import {
   DEFAULT_LONG_BREAK_TIME,
   DEFAULT_POMODORO_TIME,
@@ -25,6 +27,12 @@ const modeLabels: Record<Mode, string> = {
   pomodoro: 'Pomodoro',
   shortBreak: 'Descanso corto',
   longBreak: 'Descanso largo',
+};
+
+const extractVideoId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
 };
 
 const Pomodoro: React.FC = () => {
@@ -50,6 +58,7 @@ const Pomodoro: React.FC = () => {
   const completedPomodoros = timerState.completedPomodoros;
 
   const [inputValue, setInputValue] = useState<string>('');
+  const [youtubeUrl, setYoutubeUrl] = useState<string>('');
 
   useEffect(() => {
     setInputValue(completedPomodoros.toString());
@@ -100,6 +109,30 @@ const Pomodoro: React.FC = () => {
     }
   };
 
+  const handleYoutubeUrlSubmit = () => {
+    const videoId = extractVideoId(youtubeUrl);
+    console.log('URL ingresada:', youtubeUrl);
+    console.log('Video ID extraído:', videoId);
+    if (videoId) {
+      const newItem: YouTubeQueueItem = {
+        id: `${videoId}-${Date.now()}`,
+        videoId,
+        title: youtubeUrl,
+        url: youtubeUrl,
+      };
+      console.log('Agregando a cola:', newItem);
+      youtube.addToQueue(newItem);
+      setYoutubeUrl('');
+    } else {
+      console.log('URL inválida, no se pudo extraer videoId');
+    }
+  };
+
+  const handleClearQueue = () => {
+    youtube.clearQueue();
+    setItemToLocalStorage('youtubeQueue', '[]');
+  };
+
   const { minutes, seconds, pause, isRunning, resume, restart } = useTimer({
     expiryTimestamp: (() => {
       const { minutes, seconds } = getCurrentModeTime();
@@ -122,6 +155,37 @@ const Pomodoro: React.FC = () => {
       }
     },
   });
+
+  const youtube = useYouTubePlayer(isRunning);
+
+  useEffect(() => {
+    const savedQueue = getItemFromLocalStorage('youtubeQueue', '[]');
+    try {
+      const parsedQueue = JSON.parse(savedQueue);
+      console.log('Cola guardada en localStorage:', parsedQueue);
+      if (Array.isArray(parsedQueue) && parsedQueue.length > 0) {
+        parsedQueue.forEach((item: any) => {
+          // Validar que el item tenga la estructura correcta
+          if (item && item.videoId && item.url) {
+            youtube.addToQueue(item);
+          } else {
+            console.warn('Item inválido en cola guardada:', item);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error loading YouTube queue:', e);
+      // Limpiar localStorage si hay error
+      setItemToLocalStorage('youtubeQueue', '[]');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (youtube.queue.length > 0) {
+      setItemToLocalStorage('youtubeQueue', JSON.stringify(youtube.queue));
+    }
+  }, [youtube.queue]);
 
   useEffect(() => {
     const { minutes: mins, seconds: secs } = getCurrentModeTime();
@@ -274,6 +338,83 @@ const Pomodoro: React.FC = () => {
             />
           </Box>
         </Box>
+
+        {/* YouTube Player Controls */}
+        <Box align="center" gap="medium" className="youtube-container">
+          {/* Add to Queue */}
+          <Box direction="row" gap="small" align="center" className="youtube-input-container">
+            <input
+              type="text"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleYoutubeUrlSubmit()}
+              placeholder="Pega URL de YouTube aquí"
+              className="youtube-url-input"
+            />
+            <Button
+              icon={<Add size="small" color={colors.text} />}
+              onClick={handleYoutubeUrlSubmit}
+              className="youtube-button"
+            />
+          </Box>
+
+          {/* Player Controls */}
+          {youtube.queue.length > 0 && (
+            <Box gap="small" align="center">
+              <Box direction="row" gap="small" align="center" justify="center">
+                <Button
+                  icon={youtube.isPlaying ? <Pause size="small" color={colors.background} /> : <Play size="small" color={colors.background} />}
+                  onClick={youtube.togglePlayPause}
+                  // disabled={!youtube.isPlayerReady}
+                  className="youtube-play-button"
+                />
+                <Button
+                  icon={<Trash size="small" color={colors.text} />}
+                  onClick={handleClearQueue}
+                  className="youtube-button youtube-clear-button"
+                />
+              </Box>
+
+              {/* Current Video Info */}
+              {youtube.currentVideo && (
+                <span className="youtube-status">
+                  🎵 {youtube.currentIndex + 1}/{youtube.queue.length}: {youtube.currentVideo.title.slice(0, 50)}...
+                </span>
+              )}
+
+              {/* Queue List */}
+              <Box gap="xsmall" className="youtube-queue">
+                {youtube.queue.map((item, index) => (
+                  <Box
+                    key={item.id}
+                    direction="row"
+                    gap="small"
+                    align="center"
+                    justify="between"
+                    className={`youtube-queue-item ${index === youtube.currentIndex ? 'active' : ''}`}
+                    onClick={() => youtube.playAtIndex(index)}
+                  >
+                    <span className="youtube-queue-item-text">
+                      {index + 1}. {item.title.slice(0, 40)}...
+                    </span>
+                    <Button
+                      icon={<Close size="small" color={index === youtube.currentIndex ? colors.background : colors.text} />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        youtube.removeFromQueue(item.id);
+                      }}
+                      plain
+                      className="youtube-queue-button"
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </Box>
+
+        {/* Hidden YouTube Player */}
+        <div id="youtube-player" style={{ display: 'none' }}></div>
 
         <Button
           icon={<SettingsOption size="large" color={colors.text} />}

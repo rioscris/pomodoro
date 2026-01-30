@@ -173,6 +173,196 @@
   outline: none !important;
 }
 
+.youtube-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+.youtube-input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.youtube-url-input {
+  color: var(--text-color);
+  background: transparent;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: all 0.8s ease;
+  box-shadow: none !important;
+  outline: none !important;
+  min-width: 250px;
+  max-width: 400px;
+  flex: 1;
+  font-family: inherit;
+}
+
+.youtube-url-input:focus {
+  box-shadow: none !important;
+  outline: none !important;
+  border-color: var(--text-color);
+}
+
+.youtube-url-input::placeholder {
+  color: var(--secondary-text-color);
+  opacity: 0.6;
+}
+
+.youtube-button {
+  background: transparent !important;
+  color: var(--text-color) !important;
+  border: 2px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  box-shadow: none !important;
+  outline: none !important;
+  min-width: 40px;
+}
+
+.youtube-button:hover {
+  box-shadow: none !important;
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+  opacity: 0.8;
+}
+
+.youtube-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.youtube-play-button {
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+  border: 2px solid var(--text-color) !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease;
+  box-shadow: none !important;
+  outline: none !important;
+  min-width: 40px;
+  font-weight: 600;
+}
+
+.youtube-play-button:hover {
+  box-shadow: none !important;
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.youtube-play-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.youtube-play-button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.youtube-clear-button {
+  opacity: 0.7;
+}
+
+.youtube-status {
+  color: var(--secondary-text-color);
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  transition: color 0.8s ease;
+  text-align: center;
+}
+
+.youtube-queue {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.youtube-queue::-webkit-scrollbar {
+  width: 8px;
+}
+
+.youtube-queue::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.youtube-queue::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.youtube-queue::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color);
+}
+
+.youtube-queue-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  color: var(--text-color);
+  background: transparent;
+}
+
+.youtube-queue-item.active {
+  background: var(--secondary-text-color) !important;
+  color: var(--bg-color) !important;
+  font-weight: 500;
+}
+
+.youtube-queue-item:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.youtube-queue-item-text {
+  flex: 1;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.youtube-queue-button {
+  padding: 4px !important;
+  min-width: unset !important;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.youtube-queue-button:hover {
+  opacity: 1;
+}
+
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .timer-display {
