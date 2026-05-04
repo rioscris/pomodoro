@@ -32,7 +32,7 @@ export interface YouTubeQueueItem {
   url: string;
 }
 
-export const useYouTubePlayer = (shouldPlay: boolean) => {
+export const useYouTubePlayer = (shouldPlay: boolean, isEnabled: boolean) => {
   const playerRef = useRef<YouTubePlayer | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -43,12 +43,18 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
 
   // Load YouTube IFrame API
   useEffect(() => {
+    if (!isEnabled || import.meta.env.MODE === 'test') return;
+
     if (!document.getElementById('youtube-iframe-api')) {
       const tag = document.createElement('script');
       tag.id = 'youtube-iframe-api';
       tag.src = 'https://www.youtube.com/iframe_api';
       const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      if (firstScriptTag?.parentNode) {
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      } else {
+        document.head.appendChild(tag);
+      }
     }
 
     window.onYouTubeIframeAPIReady = () => {
@@ -58,10 +64,12 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
     if (window.YT && window.YT.Player) {
       setIsReady(true);
     }
-  }, []);
+  }, [isEnabled]);
 
   // Create player when API is ready and we have videos in queue
   useEffect(() => {
+    if (!isEnabled) return;
+
     if (isReady && queue.length > 0 && !playerRef.current) {
       const firstVideo = queue[currentIndex];
       playerRef.current = new window.YT.Player('youtube-player', {
@@ -89,10 +97,12 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
         },
       });
     }
-  }, [isReady, queue.length]);
+  }, [isEnabled, isReady, queue.length]);
 
   // Handle play/pause based on timer state (only when timer state changes)
   useEffect(() => {
+    if (!isEnabled) return;
+
     console.log('Timer sync effect:', {
       hasManuallyInteracted: hasManuallyInteracted.current,
       isPlayerReady,
@@ -114,10 +124,12 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
     // Note: queue.length and isPlaying are intentionally NOT in dependencies
     // to avoid auto-play when adding items and conflicts with manual controls
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldPlay, isPlayerReady]);
+  }, [isEnabled, shouldPlay, isPlayerReady]);
 
   // Load new video when current index changes
   useEffect(() => {
+    if (!isEnabled) return;
+
     if (isPlayerReady && playerRef.current && queue.length > 0) {
       const currentVideo = queue[currentIndex];
       if (currentVideo) {
@@ -125,9 +137,11 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
         playerRef.current.cueVideoById(currentVideo.videoId);
       }
     }
-  }, [currentIndex, isPlayerReady]);
+  }, [isEnabled, currentIndex, isPlayerReady]);
 
   const togglePlayPause = () => {
+    if (!isEnabled) return;
+
     console.log('togglePlayPause called');
     if (playerRef.current && isPlayerReady) {
       hasManuallyInteracted.current = true; // Mark that user has interacted
@@ -143,6 +157,8 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
   };
 
   const addToQueue = (item: YouTubeQueueItem) => {
+    if (!isEnabled) return;
+
     console.log('addToQueue llamado con:', item);
     setQueue((prev) => {
       // Check if item with same id already exists
@@ -158,6 +174,8 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
   };
 
   const removeFromQueue = (id: string) => {
+    if (!isEnabled) return;
+
     setQueue((prev) => {
       const newQueue = prev.filter((item) => item.id !== id);
       // Adjust current index if needed
@@ -177,6 +195,8 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
   };
 
   const clearQueue = () => {
+    if (!isEnabled) return;
+
     setQueue([]);
     setCurrentIndex(0);
     if (playerRef.current && isPlayerReady) {
@@ -186,6 +206,8 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
   };
 
   const playNext = () => {
+    if (!isEnabled) return;
+
     if (queue.length > 0 && currentIndex < queue.length - 1) {
       setCurrentIndex((idx) => idx + 1);
       const nextVideo = queue[currentIndex + 1];
@@ -197,6 +219,8 @@ export const useYouTubePlayer = (shouldPlay: boolean) => {
   };
 
   const playAtIndex = (index: number) => {
+    if (!isEnabled) return;
+
     if (queue.length > 0 && index >= 0 && index < queue.length) {
       setCurrentIndex(index);
       const video = queue[index];
