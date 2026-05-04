@@ -7,6 +7,7 @@ import { useCalculatedColors } from '../hooks/useCalculatedColors';
 import { useSounds } from '../hooks/useSounds';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import type { YouTubeQueueItem } from '../hooks/useYouTubePlayer';
+import { FEATURE_FLAGS } from '../shared/config/featureFlags';
 import { getItemFromLocalStorage, setItemToLocalStorage } from '../utils/localStorage';
 import {
   DEFAULT_LONG_BREAK_TIME,
@@ -59,6 +60,7 @@ const Pomodoro: React.FC = () => {
 
   const [inputValue, setInputValue] = useState<string>('');
   const [youtubeUrl, setYoutubeUrl] = useState<string>('');
+  const isYoutubeEnabled = FEATURE_FLAGS.youtubePlayer;
 
   useEffect(() => {
     setInputValue(completedPomodoros.toString());
@@ -156,9 +158,11 @@ const Pomodoro: React.FC = () => {
     },
   });
 
-  const youtube = useYouTubePlayer(isRunning);
+  const youtube = useYouTubePlayer(isRunning, isYoutubeEnabled);
 
   useEffect(() => {
+    if (!isYoutubeEnabled) return;
+
     const savedQueue = getItemFromLocalStorage('youtubeQueue', '[]');
     try {
       const parsedQueue = JSON.parse(savedQueue);
@@ -179,13 +183,15 @@ const Pomodoro: React.FC = () => {
       setItemToLocalStorage('youtubeQueue', '[]');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isYoutubeEnabled]);
 
   useEffect(() => {
+    if (!isYoutubeEnabled) return;
+
     if (youtube.queue.length > 0) {
       setItemToLocalStorage('youtubeQueue', JSON.stringify(youtube.queue));
     }
-  }, [youtube.queue]);
+  }, [isYoutubeEnabled, youtube.queue]);
 
   useEffect(() => {
     const { minutes: mins, seconds: secs } = getCurrentModeTime();
@@ -340,81 +346,83 @@ const Pomodoro: React.FC = () => {
         </Box>
 
         {/* YouTube Player Controls */}
-        <Box align="center" gap="medium" className="youtube-container">
-          {/* Add to Queue */}
-          <Box direction="row" gap="small" align="center" className="youtube-input-container">
-            <input
-              type="text"
-              value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleYoutubeUrlSubmit()}
-              placeholder="Pega URL de YouTube aquí"
-              className="youtube-url-input"
-            />
-            <Button
-              icon={<Add size="small" color={colors.text} />}
-              onClick={handleYoutubeUrlSubmit}
-              className="youtube-button"
-            />
-          </Box>
-
-          {/* Player Controls */}
-          {youtube.queue.length > 0 && (
-            <Box gap="small" align="center">
-              <Box direction="row" gap="small" align="center" justify="center">
-                <Button
-                  icon={youtube.isPlaying ? <Pause size="small" color={colors.background} /> : <Play size="small" color={colors.background} />}
-                  onClick={youtube.togglePlayPause}
-                  // disabled={!youtube.isPlayerReady}
-                  className="youtube-play-button"
-                />
-                <Button
-                  icon={<Trash size="small" color={colors.text} />}
-                  onClick={handleClearQueue}
-                  className="youtube-button youtube-clear-button"
-                />
-              </Box>
-
-              {/* Current Video Info */}
-              {youtube.currentVideo && (
-                <span className="youtube-status">
-                  🎵 {youtube.currentIndex + 1}/{youtube.queue.length}: {youtube.currentVideo.title.slice(0, 50)}...
-                </span>
-              )}
-
-              {/* Queue List */}
-              <Box gap="xsmall" className="youtube-queue">
-                {youtube.queue.map((item, index) => (
-                  <Box
-                    key={item.id}
-                    direction="row"
-                    gap="small"
-                    align="center"
-                    justify="between"
-                    className={`youtube-queue-item ${index === youtube.currentIndex ? 'active' : ''}`}
-                    onClick={() => youtube.playAtIndex(index)}
-                  >
-                    <span className="youtube-queue-item-text">
-                      {index + 1}. {item.title.slice(0, 40)}...
-                    </span>
-                    <Button
-                      icon={<Close size="small" color={index === youtube.currentIndex ? colors.background : colors.text} />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        youtube.removeFromQueue(item.id);
-                      }}
-                      plain
-                      className="youtube-queue-button"
-                    />
-                  </Box>
-                ))}
-              </Box>
+        {isYoutubeEnabled && (
+          <Box align="center" gap="medium" className="youtube-container">
+            {/* Add to Queue */}
+            <Box direction="row" gap="small" align="center" className="youtube-input-container">
+              <input
+                type="text"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleYoutubeUrlSubmit()}
+                placeholder="Pega URL de YouTube aquí"
+                className="youtube-url-input"
+              />
+              <Button
+                icon={<Add size="small" color={colors.text} />}
+                onClick={handleYoutubeUrlSubmit}
+                className="youtube-button"
+              />
             </Box>
-          )}
-        </Box>
+
+            {/* Player Controls */}
+            {youtube.queue.length > 0 && (
+              <Box gap="small" align="center">
+                <Box direction="row" gap="small" align="center" justify="center">
+                  <Button
+                    icon={youtube.isPlaying ? <Pause size="small" color={colors.background} /> : <Play size="small" color={colors.background} />}
+                    onClick={youtube.togglePlayPause}
+                    // disabled={!youtube.isPlayerReady}
+                    className="youtube-play-button"
+                  />
+                  <Button
+                    icon={<Trash size="small" color={colors.text} />}
+                    onClick={handleClearQueue}
+                    className="youtube-button youtube-clear-button"
+                  />
+                </Box>
+
+                {/* Current Video Info */}
+                {youtube.currentVideo && (
+                  <span className="youtube-status">
+                    🎵 {youtube.currentIndex + 1}/{youtube.queue.length}: {youtube.currentVideo.title.slice(0, 50)}...
+                  </span>
+                )}
+
+                {/* Queue List */}
+                <Box gap="xsmall" className="youtube-queue">
+                  {youtube.queue.map((item, index) => (
+                    <Box
+                      key={item.id}
+                      direction="row"
+                      gap="small"
+                      align="center"
+                      justify="between"
+                      className={`youtube-queue-item ${index === youtube.currentIndex ? 'active' : ''}`}
+                      onClick={() => youtube.playAtIndex(index)}
+                    >
+                      <span className="youtube-queue-item-text">
+                        {index + 1}. {item.title.slice(0, 40)}...
+                      </span>
+                      <Button
+                        icon={<Close size="small" color={index === youtube.currentIndex ? colors.background : colors.text} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          youtube.removeFromQueue(item.id);
+                        }}
+                        plain
+                        className="youtube-queue-button"
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}
+          </Box>
+        )}
 
         {/* Hidden YouTube Player */}
-        <div id="youtube-player" style={{ display: 'none' }}></div>
+        {isYoutubeEnabled && <div id="youtube-player" style={{ display: 'none' }}></div>}
 
         <Button
           icon={<SettingsOption size="large" color={colors.text} />}
